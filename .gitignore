@@ -1,0 +1,24 @@
+# Go build
+/bin/
+/build/
+*.exe
+*.out
+*.test
+
+# Dependency directories
+vendor/
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp
+
+# Env files
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+
+.air.toml
