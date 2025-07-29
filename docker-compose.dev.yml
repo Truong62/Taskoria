@@ -1,31 +1,42 @@
-version: "3.8"
-
+version: "3.7"
 services:
   auth-service:
-    container_name: auth-service
     build:
       context: ./auth-service
-      dockerfile: Dockerfile.dev
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./auth-service:/app
-    env_file:
-      - ./auth-service/.env
-    depends_on:
-      - postgres
-
-  postgres:
-    image: postgres:15
-    container_name: auth-postgres
+      target: dev
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-auth_db}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      - ENV=dev
+      - GOPATH=/go
+    working_dir: /app
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - ./auth-service:/app:delegated
+      - go-modules:/go/pkg/mod
+    depends_on:
+      - db
+    env_file:
+      - auth-service/.ENV
+    networks:
+      - app-network
+
+  db:
+    image: postgres:latest
     ports:
       - "5433:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
-  pg_data:
+  postgres_data:
+  go-modules:
